@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عارض المقاسات الافتراضي</title>
+
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            background-color: #f0f0f0; /* خلفية خفيفة لمشهد العارض */
+        }
+        .controls-panel {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 280px;
+        }
+        .controls-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .controls-panel input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+        .controls-panel button {
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .controls-panel button:hover {
+            background-color: #0056b3;
+        }
+        .controls-panel hr {
+            border: none;
+            border-top: 1px solid #eee;
+            margin: 10px 0;
+        }
+        #garmentSelection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #garmentSelection button {
+            flex: 1 1 calc(50% - 4px);
+            min-width: 100px;
+            background-color: #6c757d;
+        }
+        #garmentSelection button:hover {
+            background-color: #5a6268;
+        }
+
+        .product-info {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            text-align: right;
+        }
+        .product-info h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .product-info button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .product-info button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <model-viewer id="mainViewer"
+        alt="عارض نموذج ثلاثي الأبعاد"
+        src="https://amrshipl83.github.io/3dmodels/RobotExpressive.glb" camera-controls
+        touch-action="pan-y"
+        shadow-intensity="1"
+        ar
+        auto-rotate
+        auto-rotate-delay="1000"
+        rotation-per-second="1deg"
+        enable-pan
+        ar-modes="webxr scene-viewer quick-look"
+        loading="eager"
+    >
+    </model-viewer>
+
+    <div class="controls-panel">
+        <h3>خيارات القياس</h3>
+        <input type="number" id="chestInput" placeholder="محيط الصدر (سم)">
+        <input type="number" id="waistInput" placeholder="محيط الخصر (سم)">
+        <input type="number" id="hipsInput" placeholder="محيط الأرداف (سم)">
+        <button id="applyMeasurementsBtn">تطبيق المقاسات</button>
+        <hr>
+        <h3>خيارات العرض</h3>
+        <button id="viewFrontBtn">أمامى</button>
+        <button id="viewBackBtn">خلفى</button>
+        <button id="viewSideBtn">جانبى</button>
+        <button id="resetViewBtn">إعادة ضبط العرض</button>
+        <hr>
+        <h3>المنتجات</h3>
+        <div id="garmentSelection">
+            <button id="blueShirtBtn">قميص أزرق (روبوت)</button>
+            <button id="redTshirtBtn">تي شيرت أحمر (غير متاح)</button>
+        </div>
+    </div>
+
+    <div class="product-info">
+        <h4 id="currentProductName">المنتج: روبوت</h4>
+        <button id="addToCartBtn">أضف إلى السلة</button>
+    </div>
+
+    <script>
+        console.log("Script is running!"); // رسالة للمساعدة في التصحيح
+
+        const modelViewer = document.getElementById('mainViewer');
+        const currentProductName = document.getElementById('currentProductName');
+
+        const ASTRONAUT_MODEL_URL = 'https://amrshipl83.github.io/3dmodels/Astronaut.glb'; 
+        const ROBOT_MODEL_URL = 'https://amrshipl83.github.io/3dmodels/RobotExpressive.glb'; 
+
+        function switchModel(modelUrl, name) {
+            modelViewer.src = modelUrl;
+            currentProductName.textContent = `المنتج: ${name}`;
+        }
+
+        document.getElementById('blueShirtBtn').addEventListener('click', () => {
+            switchModel(ROBOT_MODEL_URL, 'روبوت كقميص');
+            console.log('تم اختيار الروبوت كقميص.');
+        });
+
+        document.getElementById('redTshirtBtn').addEventListener('click', () => {
+            switchModel(ASTRONAUT_MODEL_URL, 'رائد فضاء (جسم)'); // هذا الزر سيحاول عرض رائد الفضاء لو تم رفعه
+            console.log('تم اختيار رائد الفضاء.');
+        });
+
+        document.getElementById('viewFrontBtn').addEventListener('click', () => {
+            modelViewer.cameraOrbit = '0deg 75deg 105%';
+            console.log('عرض أمامي');
+        });
+        document.getElementById('viewBackBtn').addEventListener('click', () => {
+            modelViewer.cameraOrbit = '180deg 75deg 105%';
+            console.log('عرض خلفي');
+        });
+        document.getElementById('viewSideBtn').addEventListener('click', () => {
+            modelViewer.cameraOrbit = '90deg 75deg 105%';
+            console.log('عرض جانبي');
+        });
+        document.getElementById('resetViewBtn').addEventListener('click', () => {
+            modelViewer.cameraOrbit = '0deg 75deg 105%';
+            console.log('إعادة ضبط العرض');
+        });
+
+        document.getElementById('applyMeasurementsBtn').addEventListener('click', () => {
+            const chest = parseFloat(document.getElementById('chestInput').value);
+            const waist = parseFloat(document.getElementById('waistInput').value);
+            const hips = parseFloat(document.getElementById('hipsInput').value);
+            console.log(`تم النقر على تطبيق المقاسات. القياسات: الصدر=${chest}, الخصر=${waist}, الأرداف=${hips}`);
+            alert('تم النقر على تطبيق المقاسات. (الوظيفة ستعمل لاحقاً).');
+        });
+
+        document.getElementById('addToCartBtn').addEventListener('click', () => {
+            alert('زر "أضف إلى السلة" تم النقر عليه (الوظيفة ستعمل لاحقاً).');
+            console.log('إضافة المنتج للسلة');
+        });
+
+        window.addEventListener('load', () => {
+            switchModel(ROBOT_MODEL_URL, 'روبوت');
+        });
+    </script>
+</body>
+</html>
